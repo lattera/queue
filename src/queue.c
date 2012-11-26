@@ -4,14 +4,13 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "misc.h"
 #include "queue.h"
 
 QUEUE *Initialize_Queue(void)
 {
 	QUEUE *q;
 	
-	q = xmalloc(sizeof(QUEUE));
+	q = calloc(1, sizeof(QUEUE));
 	if (!(q))
 		return NULL;
 	
@@ -26,7 +25,7 @@ void Add_Queue_Item(QUEUE *queue, char *action, void *data, size_t sz)
 {
 	QUEUE_ITEM *qi;
 	
-	qi = xmalloc(sizeof(QUEUE_ITEM));
+	qi = calloc(1, sizeof(QUEUE_ITEM));
 	if (!(qi))
 		return;
 	
@@ -83,3 +82,29 @@ void Free_Queue_Item(QUEUE_ITEM *queue_item)
 	free(queue_item);
 }
 
+#if defined(TEST_CODE)
+void Print_Queue_Items(QUEUE *queue)
+{
+    QUEUE_ITEM *item;
+
+    while (queue->items) {
+        item = Get_Queue_Item(queue);
+        fprintf(stderr, "[*] action[%s]: %s (%u)\n", item->action, item->data, item->sz);
+        Free_Queue_Item(item);
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    QUEUE *queue;
+    QUEUE_ITEM *items, *item;
+
+    queue = Initialize_Queue();
+    Add_Queue_Item(queue, "action 1", "data 1", sizeof("data 1"));
+    Add_Queue_Item(queue, "action 2", "data 2", sizeof("data 2"));
+
+    Print_Queue_Items(queue);
+
+    return 0;
+}
+#endif
